@@ -24,7 +24,12 @@ def spider_search(
     client_ip = request.client.host if request.client else "127.0.0.1"
     log_audit_event(officer_badge, client_ip, "GRAPH_TRAVERSAL_SEARCH", query)
     
-    elements = execute_spider_search(query, depth)
+    try:
+        elements = execute_spider_search(query, depth)
+    except Exception as e:
+        import traceback
+        err_msg = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+        raise HTTPException(status_code=500, detail=f"Database execution failed: {err_msg}")
     
     meta = GraphResponseMeta(
         query=query,

@@ -61,8 +61,12 @@ def log_audit_event(officer_badge: str, ip_address: str, action: str, query_para
     log_data["sha256_integrity_hash"] = sha256_hash
     
     # Append to immutable audit log file
-    log_file_path = "audit_log.jsonl"
-    with open(log_file_path, "a") as f:
-        f.write(json.dumps(log_data) + "\n")
+    # Vercel Serverless Functions only allow writing to /tmp
+    log_file_path = "/tmp/audit_log.jsonl"
+    try:
+        with open(log_file_path, "a") as f:
+            f.write(json.dumps(log_data) + "\n")
+    except Exception as e:
+        print(f"Warning: Failed to write audit log: {e}")
     
     return log_data
